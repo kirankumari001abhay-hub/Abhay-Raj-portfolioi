@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abhay Raj – Graphic Designer</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --cyan:#00f7ff;--pink:#ff00c8;--gold:#f0c040;
+  --bg:#060610;--surface:#0d0d1a;--card:#12121f;
+  --border:rgba(0,247,255,0.14);--text:#eeeeff;--muted:#7777aa;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;cursor:none;}
+
+/* CUSTOM CURSOR */
+#cursor{position:fixed;width:12px;height:12px;background:var(--cyan);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .2s,height .2s,background .2s;mix-blend-mode:screen;}
+#cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(0,247,255,0.5);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:all .1s ease;mix-blend-mode:screen;}
+body:has(a:hover) #cursor,body:has(button:hover) #cursor{width:20px;height:20px;background:var(--pink);}
+
+/* CANVAS */
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+
+/* NAV */
+nav{position:fixed;width:100%;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:20px 6%;background:rgba(6,6,16,0.7);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:900;background:linear-gradient(90deg,var(--cyan),var(--pink));-webkit-background-clip:text;color:transparent;}
+.nav-links{display:flex;gap:2rem;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.85rem;font-weight:500;letter-spacing:.5px;transition:color .2s;}
+.nav-links a:hover{color:var(--cyan);}
+
+/* MAIN CONTENT ABOVE CANVAS */
+main{position:relative;z-index:1;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:8rem 6% 4rem;position:relative;}
+#hero-canvas{position:absolute;inset:0;z-index:0;pointer-events:none;}
+.hero-content{position:relative;z-index:2;}
+
+.hero-badge{display:inline-flex;align-items:center;gap:.6rem;border:1px solid var(--border);background:rgba(0,247,255,0.06);padding:.45rem 1.2rem;border-radius:100px;font-size:.78rem;color:var(--cyan);font-weight:500;margin-bottom:1.5rem;animation:fadeUp .7s ease both;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 6px var(--cyan);}50%{opacity:.2;box-shadow:none;}}
+
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(3.5rem,9vw,7.5rem);font-weight:900;line-height:.95;letter-spacing:-4px;animation:fadeUp .7s .1s ease both;}
+.h1-white{color:#fff;display:block;}
+.h1-grad{background:linear-gradient(135deg,var(--cyan),var(--pink),var(--gold));-webkit-background-clip:text;color:transparent;display:block;}
+
+.hero-role{font-size:clamp(1rem,2vw,1.2rem);color:var(--muted);margin-top:1.2rem;letter-spacing:5px;text-transform:uppercase;animation:fadeUp .7s .2s ease both;}
+.hero-role span{color:var(--cyan);}
+
+.hero-desc{max-width:420px;color:var(--muted);line-height:1.8;margin:.8rem auto 0;font-size:.92rem;animation:fadeUp .7s .3s ease both;}
+
+.hero-btns{display:flex;gap:1rem;margin-top:2.5rem;justify-content:center;flex-wrap:wrap;animation:fadeUp .7s .4s ease both;}
+.btn{padding:.9rem 2.2rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all .25s;border:none;display:inline-flex;align-items:center;gap:.5rem;}
+.btn-glow{background:linear-gradient(90deg,var(--cyan),var(--pink));color:#000;box-shadow:0 0 30px rgba(0,247,255,.3);}
+.btn-glow:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 0 60px rgba(0,247,255,.5);}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);transform:translateY(-3px);}
+
+.hero-stats{display:flex;gap:3rem;margin-top:4rem;justify-content:center;flex-wrap:wrap;animation:fadeUp .7s .5s ease both;}
+.stat-n{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:900;background:linear-gradient(90deg,var(--cyan),var(--pink));-webkit-background-clip:text;color:transparent;}
+.stat-l{font-size:.75rem;color:var(--muted);letter-spacing:1px;margin-top:.2rem;}
+
+/* SCROLL INDICATOR */
+.scroll-ind{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;color:var(--muted);font-size:.72rem;letter-spacing:2px;text-transform:uppercase;animation:fadeUp .7s .8s ease both;}
+.scroll-line{width:1px;height:50px;background:linear-gradient(var(--cyan),transparent);animation:scrollPulse 2s infinite;}
+@keyframes scrollPulse{0%{opacity:0;transform:scaleY(0);transform-origin:top}50%{opacity:1}100%{opacity:0;transform:scaleY(1);transform-origin:top}}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTIONS */
+section{padding:7rem 6%;position:relative;z-index:1;}
+.s-label{font-size:.72rem;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--cyan);margin-bottom:.6rem;}
+.s-title{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:900;letter-spacing:-1.5px;margin-bottom:.8rem;line-height:1.05;}
+.s-title span{background:linear-gradient(90deg,var(--cyan),var(--pink));-webkit-background-clip:text;color:transparent;}
+.s-sub{color:var(--muted);max-width:480px;line-height:1.75;font-size:.9rem;}
+
+/* ABOUT */
+#about{background:var(--surface);}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;margin-top:3rem;}
+
+/* 3D CARD SCENE */
+.card-3d-scene{perspective:800px;width:100%;}
+.card-3d{
+  width:100%;aspect-ratio:3/4;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:24px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  transform-style:preserve-3d;
+  transition:transform .1s ease;
+  cursor:pointer;
+}
+.card-3d-inner{position:absolute;inset:0;border-radius:24px;overflow:hidden;}
+.card-shine{position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,rgba(0,247,255,.15),transparent 60%);opacity:0;transition:opacity .3s;pointer-events:none;border-radius:24px;}
+.card-3d:hover .card-shine{opacity:1;}
+.card-3d-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2rem;}
+.card-avatar{width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,rgba(0,247,255,.2),rgba(255,0,200,.2));border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative;}
+.card-avatar::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(0,247,255,.3);animation:rotateBorder 4s linear infinite;}
+@keyframes rotateBorder{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.card-name{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:900;text-align:center;}
+.card-sub{color:var(--cyan);font-size:.8rem;letter-spacing:3px;text-transform:uppercase;}
+.card-tags{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-top:.5rem;}
+.c-tag{background:rgba(0,247,255,.08);border:1px solid rgba(0,247,255,.2);color:var(--cyan);padding:.25rem .7rem;border-radius:6px;font-size:.72rem;}
+/* floating particles on card */
+.card-particles span{position:absolute;border-radius:50%;pointer-events:none;animation:floatP linear infinite;}
+.card-particles span:nth-child(1){width:4px;height:4px;background:var(--cyan);top:20%;left:10%;animation-duration:3s;animation-delay:0s;}
+.card-particles span:nth-child(2){width:3px;height:3px;background:var(--pink);top:70%;left:80%;animation-duration:4s;animation-delay:1s;}
+.card-particles span:nth-child(3){width:5px;height:5px;background:var(--gold);top:40%;left:85%;animation-duration:5s;animation-delay:.5s;}
+.card-particles span:nth-child(4){width:3px;height:3px;background:var(--cyan);top:80%;left:20%;animation-duration:3.5s;animation-delay:2s;}
+@keyframes floatP{0%{transform:translateY(0) scale(1);opacity:.8}50%{transform:translateY(-20px) scale(1.2);opacity:1}100%{transform:translateY(0) scale(1);opacity:.8}}
+/* glow lines on card */
+.card-line{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.2;}
+.card-line:nth-child(1){top:30%;}
+.card-line:nth-child(2){top:60%;background:linear-gradient(90deg,transparent,var(--pink),transparent);}
+
+.about-text .s-sub{max-width:100%;margin-bottom:1.2rem;}
+.about-text p{color:var(--muted);line-height:1.9;font-size:.9rem;margin-bottom:1rem;}
+.skill-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.2rem;}
+.tag{background:rgba(0,247,255,.08);border:1px solid rgba(0,247,255,.2);color:var(--cyan);padding:.35rem .9rem;border-radius:6px;font-size:.78rem;font-weight:500;transition:all .2s;}
+.tag:hover{background:rgba(0,247,255,.18);transform:translateY(-2px);}
+
+/* SERVICES */
+#services .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem;margin-top:3rem;}
+.svc{
+  background:var(--card);border:1px solid var(--border);border-radius:18px;padding:2rem;
+  position:relative;overflow:hidden;transition:all .3s;cursor:pointer;
+  transform-style:preserve-3d;
+}
+.svc::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,247,255,.04),transparent);opacity:0;transition:.3s;}
+.svc:hover{transform:translateY(-8px) rotateX(3deg);border-color:var(--cyan);box-shadow:0 24px 60px rgba(0,247,255,.12);}
+.svc:hover::before{opacity:1;}
+.svc-num{position:absolute;top:1.2rem;right:1.5rem;font-family:'Syne',sans-serif;font-size:3rem;font-weight:900;color:rgba(255,255,255,.03);}
+.svc-icon{font-size:2.5rem;margin-bottom:1rem;display:block;filter:drop-shadow(0 0 8px rgba(0,247,255,.4));}
+.svc-name{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:.5rem;}
+.svc-desc{color:var(--muted);font-size:.83rem;line-height:1.7;}
+
+/* 3D PORTFOLIO CARDS */
+#portfolio{background:var(--surface);}
+.port-header{margin-bottom:3rem;}
+.portfolio-3d-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+.port-3d-wrap{perspective:600px;}
+.port-3d{
+  border-radius:18px;overflow:hidden;position:relative;
+  background:var(--card);border:1px solid var(--border);
+  cursor:pointer;transition:all .15s ease;
+  transform-style:preserve-3d;
+}
+.port-3d:hover{box-shadow:0 30px 80px rgba(0,247,255,.2);}
+.port-3d-thumb{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  font-size:3.5rem;position:relative;overflow:hidden;
+}
+.port-3d-thumb::after{content:'';position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(0,0,0,.7));pointer-events:none;}
+/* thumb backgrounds */
+.pt1{background:linear-gradient(135deg,#0a0030 0%,#1a0060 40%,#00003a 100%);}
+.pt2{background:linear-gradient(135deg,#001a10 0%,#003a20 40%,#001020 100%);}
+.pt3{background:linear-gradient(135deg,#1a0010 0%,#3a0030 40%,#100010 100%);}
+.pt4{background:linear-gradient(135deg,#1a1000 0%,#3a2000 40%,#100800 100%);}
+.pt5{background:linear-gradient(135deg,#001a1a 0%,#003a3a 40%,#001010 100%);}
+.pt6{background:linear-gradient(135deg,#0a001a 0%,#200050 40%,#0a0030 100%);}
+/* animated glow ring on thumb */
+.port-3d-thumb .ring{position:absolute;width:80px;height:80px;border-radius:50%;border:1px solid rgba(0,247,255,.25);animation:expandRing 3s ease-out infinite;}
+.port-3d-thumb .ring:nth-child(2){width:120px;height:120px;animation-delay:.5s;border-color:rgba(255,0,200,.2);}
+.port-3d-thumb .ring:nth-child(3){width:160px;height:160px;animation-delay:1s;border-color:rgba(240,192,64,.15);}
+@keyframes expandRing{0%{transform:scale(.8);opacity:.8}100%{transform:scale(1.4);opacity:0}}
+.port-3d-info{padding:1.2rem;}
+.port-3d-type{font-size:.7rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:.3rem;}
+.port-3d-name{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;}
+.port-3d-hover-overlay{
+  position:absolute;inset:0;
+  background:rgba(0,247,255,.06);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:.25s;
+  border-radius:18px;
+  font-size:2rem;
+  font-family:'Syne',sans-serif;font-weight:800;
+  color:var(--cyan);letter-spacing:-1px;
+  backdrop-filter:blur(4px);
+}
+.port-3d:hover .port-3d-hover-overlay{opacity:1;}
+/* first card spans 2 cols */
+.port-3d-wrap:first-child{grid-column:span 2;}
+.port-3d-wrap:first-child .port-3d-thumb{aspect-ratio:2/1;}
+
+/* CONTACT */
+#contact{text-align:center;}
+.contact-scene{max-width:600px;margin:3rem auto 0;perspective:1000px;}
+.contact-card-3d{
+  background:var(--card);border:1px solid var(--border);border-radius:24px;padding:3rem;
+  position:relative;overflow:hidden;
+  transform-style:preserve-3d;
+  transition:transform .1s ease;
+}
+.contact-card-3d::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--pink),var(--gold));}
+.contact-card-3d::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,247,255,.06),transparent 60%);pointer-events:none;}
+.contact-items{display:flex;flex-direction:column;gap:1rem;margin-top:1.5rem;}
+.c-row{display:flex;align-items:center;gap:1rem;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:1rem 1.5rem;text-align:left;text-decoration:none;color:var(--text);transition:all .2s;}
+.c-row:hover{border-color:var(--cyan);background:rgba(0,247,255,.06);transform:translateX(6px);}
+.c-ico{font-size:1.4rem;flex-shrink:0;filter:drop-shadow(0 0 6px rgba(0,247,255,.4));}
+.c-info small{display:block;font-size:.75rem;color:var(--muted);margin-top:.1rem;}
+
+/* FOOTER */
+footer{text-align:center;padding:1.5rem 6%;border-top:1px solid var(--border);color:var(--muted);font-size:.8rem;position:relative;z-index:1;}
+footer span{background:linear-gradient(90deg,var(--cyan),var(--pink));-webkit-background-clip:text;color:transparent;font-weight:600;}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .65s ease,transform .65s ease;}
+.reveal.on{opacity:1;transform:translateY(0);}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .about-grid{grid-template-columns:1fr;gap:2.5rem;}
+  .portfolio-3d-grid{grid-template-columns:1fr 1fr;}
+  .port-3d-wrap:first-child{grid-column:span 2;}
+}
+@media(max-width:600px){
+  .portfolio-3d-grid{grid-template-columns:1fr;}
+  .port-3d-wrap:first-child{grid-column:span 1;}
+  .port-3d-wrap:first-child .port-3d-thumb{aspect-ratio:1;}
+  .nav-links{display:none;}
+  section{padding:5rem 5%;}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- BACKGROUND PARTICLE CANVAS -->
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <div class="nav-logo">Abhay Raj.</div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#services">Services</a>
+    <a href="#portfolio">Portfolio</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- HERO -->
+<div class="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge"><div class="dot"></div> Available for freelance</div>
+    <h1>
+      <span class="h1-white">Abhay</span>
+      <span class="h1-grad">Raj.</span>
+    </h1>
+    <div class="hero-role">Graphic Designer · <span>Delhi Pitampura</span></div>
+    <p class="hero-desc">I craft bold visual identities — logos, posters & brand systems — that make people stop and stare.</p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn btn-glow">Hire Me ✦</a>
+      <a href="#portfolio" class="btn btn-ghost">View My Work</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-n" data-target="50">0</div><div class="stat-l">Projects Done</div></div>
+      <div class="stat"><div class="stat-n" data-target="3">0</div><div class="stat-l">Years Exp.</div></div>
+      <div class="stat"><div class="stat-n" data-target="100">0</div><div class="stat-l">% Satisfaction</div></div>
+    </div>
+  </div>
+  <div class="scroll-ind"><div class="scroll-line"></div>scroll</div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+
+    <!-- 3D Tilt Card -->
+    <div class="card-3d-scene reveal" id="tilt-card-wrap">
+      <div class="card-3d" id="tilt-card">
+        <div class="card-3d-inner">
+          <div class="card-line"></div>
+          <div class="card-line"></div>
+          <!-- bg mesh -->
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(0,247,255,.08),transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(255,0,200,.08),transparent 60%);"></div>
+        </div>
+        <div class="card-particles">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="card-3d-content">
+          <div class="card-avatar">🎨</div>
+          <div class="card-name">Abhay Raj</div>
+          <div class="card-sub">Graphic Designer</div>
+          <div class="card-tags">
+            <span class="c-tag">Logos</span>
+            <span class="c-tag">Posters</span>
+            <span class="c-tag">Branding</span>
+            <span class="c-tag">Social Media</span>
+          </div>
+          <!-- mini bar stats -->
+          <div style="width:100%;margin-top:1rem;">
+            <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:.3rem;"><span>Adobe Photoshop</span><span style="color:var(--cyan)">95%</span></div>
+            <div style="height:4px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;"><div style="width:95%;height:100%;background:linear-gradient(90deg,var(--cyan),var(--pink));border-radius:4px;"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin:.5rem 0 .3rem;"><span>Illustrator</span><span style="color:var(--pink)">88%</span></div>
+            <div style="height:4px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;"><div style="width:88%;height:100%;background:linear-gradient(90deg,var(--pink),var(--gold));border-radius:4px;"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin:.5rem 0 .3rem;"><span>Figma</span><span style="color:var(--gold)">80%</span></div>
+            <div style="height:4px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;"><div style="width:80%;height:100%;background:linear-gradient(90deg,var(--gold),var(--cyan));border-radius:4px;"></div></div>
+          </div>
+        </div>
+        <div class="card-shine"></div>
+      </div>
+    </div>
+
+    <div class="about-text reveal">
+      <div class="s-label">About Me</div>
+      <h2 class="s-title">Design is my <span>language.</span></h2>
+      <p>I'm <strong>Abhay Raj</strong>, a professional graphic designer based in Delhi Pitampura. I craft visual identities that are bold, clean, and unforgettable.</p>
+      <p>From brand logos to Instagram creatives, every pixel I place is intentional. I believe great design doesn't just look good — it communicates.</p>
+      <div class="skill-tags">
+        <span class="tag">Logo Design</span><span class="tag">Brand Identity</span>
+        <span class="tag">Poster Design</span><span class="tag">Social Media</span>
+        <span class="tag">Photoshop</span><span class="tag">Illustrator</span>
+        <span class="tag">Canva</span><span class="tag">Typography</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="s-label reveal">What I Do</div>
+  <h2 class="s-title reveal">My <span>Services</span></h2>
+  <p class="s-sub reveal">Bold creative services to make your brand unforgettable.</p>
+  <div class="services-grid">
+    <div class="svc reveal"><div class="svc-num">01</div><span class="svc-icon">🔷</span><div class="svc-name">Logo Design</div><div class="svc-desc">Unique, scalable logos that represent your identity and leave a lasting mark.</div></div>
+    <div class="svc reveal"><div class="svc-num">02</div><span class="svc-icon">🎭</span><div class="svc-name">Poster Design</div><div class="svc-desc">Eye-catching posters for events, promotions and campaigns — print or digital.</div></div>
+    <div class="svc reveal"><div class="svc-num">03</div><span class="svc-icon">📱</span><div class="svc-name">Instagram Posts</div><div class="svc-desc">Scroll-stopping social graphics that boost engagement and grow your audience.</div></div>
+    <div class="svc reveal"><div class="svc-num">04</div><span class="svc-icon">🖼️</span><div class="svc-name">Banner Design</div><div class="svc-desc">Professional banners for web, events, and outdoor that demand attention.</div></div>
+    <div class="svc reveal"><div class="svc-num">05</div><span class="svc-icon">📦</span><div class="svc-name">Brand Identity</div><div class="svc-desc">Complete visual systems — colors, typography, guidelines, and more.</div></div>
+    <div class="svc reveal"><div class="svc-num">06</div><span class="svc-icon">✏️</span><div class="svc-name">Illustration</div><div class="svc-desc">Hand-crafted artwork tailored to your brand's unique personality.</div></div>
+  </div>
+</section>
+
+<!-- 3D PORTFOLIO -->
+<section id="portfolio">
+  <div class="port-header">
+    <div class="s-label reveal">Portfolio</div>
+    <h2 class="s-title reveal">Recent <span>Work</span></h2>
+    <p class="s-sub reveal">Hover over cards to reveal project details. Replace with your real work!</p>
+  </div>
+  <div class="portfolio-3d-grid">
+
+    <div class="port-3d-wrap reveal" id="pc1">
+      <div class="port-3d" data-tilt>
+        <div class="port-3d-thumb pt1">
+          <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+          🔷
+        </div>
+        <div class="port-3d-hover-overlay">View →</div>
+        <div class="port-3d-info"><div class="port-3d-type">Brand Identity</div><div class="port-3d-name">Tech Startup Logo & Brand System</div></div>
+      </div>
+    </div>
+
+    <div class="port-3d-wrap reveal" id="pc2">
+      <div class="port-3d" data-tilt>
+        <div class="port-3d-thumb pt2">
+          <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+          🌿
+        </div>
+        <div class="port-3d-hover-overlay">View →</div>
+        <div class="port-3d-info"><div class="port-3d-type">Poster Design</div><div class="port-3d-name">Music Night Event Poster</div></div>
+      </div>
+    </div>
+
+    <div class="port-3d-wrap reveal" id="pc3">
+      <div class="port-3d" data-tilt>
+        <div class="port-3d-thumb pt3">
+          <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+          🎨
+        </div>
+        <div class="port-3d-hover-overlay">View →</div>
+        <div class="port-3d-info"><div class="port-3d-type">Social Media</div><div class="port-3d-name">Instagram Campaign Series</div></div>
+      </div>
+    </div>
+
+    <div class="port-3d-wrap reveal" id="pc4">
+      <div class="port-3d" data-tilt>
+        <div class="port-3d-thumb pt4">
+          <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+          ✨
+        </div>
+        <div class="port-3d-hover-overlay">View →</div>
+        <div class="port-3d-info"><div class="port-3d-type">Banner</div><div class="port-3d-name">Diwali Festival Sale Banner</div></div>
+      </div>
+    </div>
+
+    <div class="port-3d-wrap reveal" id="pc5">
+      <div class="port-3d" data-tilt>
+        <div class="port-3d-thumb pt5">
+          <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+          💎
+        </div>
+        <div class="port-3d-hover-overlay">View →</div>
+        <div class="port-3d-info"><div class="port-3d-type">Logo Design</div><div class="port-3d-name">Luxury Jewellery Brand Logo</div></div>
+      </div>
+    </div>
+
+    <div class="port-3d-wrap reveal" id="pc6">
+      <div class="port-3d" data-tilt>
+        <div class="port-3d-thumb pt6">
+          <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+          🚀
+        </div>
+        <div class="port-3d-hover-overlay">View →</div>
+        <div class="port-3d-info"><div class="port-3d-type">Illustration</div><div class="port-3d-name">Custom App Icon Set</div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="s-label reveal">Say Hello</div>
+  <h2 class="s-title reveal">Let's Create <span>Together</span></h2>
+  <p class="s-sub reveal" style="margin:0 auto;">Have a project? I'd love to bring it to life.</p>
+  <div class="contact-scene reveal">
+    <div class="contact-card-3d" id="contact-card">
+      <div class="contact-items">
+        <a href="mailto:your@email.com" class="c-row"><span class="c-ico">📧</span><div class="c-info">your@email.com<small>Send me an email</small></div></a>
+        <div class="c-row"><span class="c-ico">📍</span><div class="c-info">Delhi Pitampura, India<small>Available for local & remote work</small></div></div>
+        <a href="https://linkedin.com/in/abhayraj" class="c-row" target="_blank"><span class="c-ico">💼</span><div class="c-info">linkedin.com/in/abhayraj<small>Connect on LinkedIn</small></div></a>
+        <a href="https://instagram.com/abhayraj.design" class="c-row" target="_blank"><span class="c-ico">📸</span><div class="c-info">@abhayraj.design<small>Follow on Instagram</small></div></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>© 2026 <span>Abhay Raj</span> · Graphic Designer · Delhi Pitampura</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ─── CUSTOM CURSOR ─── */
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+});
+(function animCursor(){
+  rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animCursor);
+})();
+
+/* ─── BG PARTICLE FIELD (Three.js) ─── */
+(function(){
+  const canvas = document.getElementById('bg-canvas');
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(innerWidth,innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, .1, 1000);
+  camera.position.z = 5;
+
+  // Particles
+  const count = 1800;
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(count*3);
+  const colors = new Float32Array(count*3);
+  for(let i=0;i<count;i++){
+    pos[i*3]=(Math.random()-.5)*20;
+    pos[i*3+1]=(Math.random()-.5)*20;
+    pos[i*3+2]=(Math.random()-.5)*10;
+    const t=Math.random();
+    if(t<.33){colors[i*3]=0;colors[i*3+1]=.97;colors[i*3+2]=1;}
+    else if(t<.66){colors[i*3]=1;colors[i*3+1]=0;colors[i*3+2]=.78;}
+    else{colors[i*3]=.94;colors[i*3+1]=.75;colors[i*3+2]=.25;}
+  }
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color',new THREE.BufferAttribute(colors,3));
+  const mat = new THREE.PointsMaterial({size:.04,vertexColors:true,transparent:true,opacity:.7});
+  const particles = new THREE.Points(geo,mat);
+  scene.add(particles);
+
+  // Floating wireframe torus
+  const torusGeo = new THREE.TorusGeometry(2,0.6,8,40);
+  const torusMat = new THREE.MeshBasicMaterial({color:0x00f7ff,wireframe:true,transparent:true,opacity:.06});
+  const torus = new THREE.Mesh(torusGeo,torusMat);
+  torus.position.set(4,-1,-2);
+  scene.add(torus);
+
+  const torusGeo2 = new THREE.TorusGeometry(1.5,0.4,8,30);
+  const torusMat2 = new THREE.MeshBasicMaterial({color:0xff00c8,wireframe:true,transparent:true,opacity:.05});
+  const torus2 = new THREE.Mesh(torusGeo2,torusMat2);
+  torus2.position.set(-5,2,-3);
+  scene.add(torus2);
+
+  // Icosahedron
+  const icoGeo = new THREE.IcosahedronGeometry(1,0);
+  const icoMat = new THREE.MeshBasicMaterial({color:0xf0c040,wireframe:true,transparent:true,opacity:.07});
+  const ico = new THREE.Mesh(icoGeo,icoMat);
+  ico.position.set(-4,-2,-1);
+  scene.add(ico);
+
+  let mouseX=0,mouseY=0;
+  document.addEventListener('mousemove',e=>{mouseX=(e.clientX/innerWidth-.5)*2; mouseY=-(e.clientY/innerHeight-.5)*2;});
+
+  function animate(){
+    requestAnimationFrame(animate);
+    const t=Date.now()*.001;
+    particles.rotation.y=t*.03;
+    particles.rotation.x=t*.01;
+    torus.rotation.x=t*.3; torus.rotation.y=t*.5;
+    torus2.rotation.x=-t*.2; torus2.rotation.z=t*.4;
+    ico.rotation.x=t*.4; ico.rotation.y=t*.3;
+    camera.position.x+=((mouseX*.5)-camera.position.x)*.02;
+    camera.position.y+=((mouseY*.3)-camera.position.y)*.02;
+    renderer.render(scene,camera);
+  }
+  animate();
+
+  window.addEventListener('resize',()=>{
+    camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+  });
+})();
+
+/* ─── HERO CANVAS (rings + lines) ─── */
+(function(){
+  const c = document.getElementById('hero-canvas');
+  const ctx = c.getContext('2d');
+  function resize(){c.width=c.offsetWidth;c.height=c.offsetHeight;}
+  resize(); window.addEventListener('resize',resize);
+
+  const rings=[];
+  function spawnRing(){
+    rings.push({x:c.width/2,y:c.height/2,r:10,maxR:Math.random()*200+80,op:1,
+      color:Math.random()<.5?'0,247,255':'255,0,200'});
+  }
+  setInterval(spawnRing,800);
+
+  function drawHero(){
+    ctx.clearRect(0,0,c.width,c.height);
+    for(let i=rings.length-1;i>=0;i--){
+      const r=rings[i];
+      r.r+=1.5; r.op=1-(r.r/r.maxR);
+      ctx.beginPath();ctx.arc(r.x,r.y,r.r,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(${r.color},${r.op*.25})`;ctx.lineWidth=1;ctx.stroke();
+      if(r.r>=r.maxR) rings.splice(i,1);
+    }
+    requestAnimationFrame(drawHero);
+  }
+  drawHero();
+})();
+
+/* ─── COUNTER ANIMATION ─── */
+function animateCount(el,target,suffix=''){
+  let cur=0; const step=Math.ceil(target/60);
+  const iv=setInterval(()=>{cur+=step;if(cur>=target){cur=target;clearInterval(iv);}el.textContent=cur+suffix;},25);
+}
+const obs2=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      document.querySelectorAll('[data-target]').forEach(el=>{
+        const t=+el.dataset.target;
+        const s=el.dataset.suffix||'';
+        animateCount(el,t,s);
+      });
+      obs2.disconnect();
+    }
+  });
+},{threshold:.5});
+const statsEl=document.querySelector('.hero-stats');
+if(statsEl) obs2.observe(statsEl);
+document.querySelectorAll('[data-target]').forEach(el=>{
+  if(!el.dataset.suffix) el.dataset.suffix=el.closest('.stat')?.querySelector('.stat-l')?.textContent.includes('%')?'%':'+';
+});
+
+/* ─── 3D TILT: ABOUT CARD ─── */
+const tiltCard = document.getElementById('tilt-card');
+const tiltWrap = document.getElementById('tilt-card-wrap');
+if(tiltWrap && tiltCard){
+  tiltWrap.addEventListener('mousemove',e=>{
+    const r=tiltCard.getBoundingClientRect();
+    const x=e.clientX-r.left,y=e.clientY-r.top;
+    const cx=r.width/2,cy=r.height/2;
+    const rx2=((y-cy)/cy)*-18;
+    const ry2=((x-cx)/cx)*18;
+    tiltCard.style.transform=`rotateX(${rx2}deg) rotateY(${ry2}deg) scale(1.03)`;
+    const shine=tiltCard.querySelector('.card-shine');
+    shine.style.opacity='1';
+    shine.style.background=`radial-gradient(circle at ${x}px ${y}px, rgba(0,247,255,0.2), transparent 60%)`;
+  });
+  tiltWrap.addEventListener('mouseleave',()=>{
+    tiltCard.style.transform='rotateX(0) rotateY(0) scale(1)';
+    tiltCard.querySelector('.card-shine').style.opacity='0';
+  });
+}
+
+/* ─── 3D TILT: PORTFOLIO CARDS ─── */
+document.querySelectorAll('.port-3d').forEach(card=>{
+  const wrap=card.closest('.port-3d-wrap');
+  wrap.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=e.clientX-r.left,y=e.clientY-r.top;
+    const cx=r.width/2,cy=r.height/2;
+    const rx=((y-cy)/cy)*-12;
+    const ry=((x-cx)/cx)*12;
+    card.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg) scale(1.04)`;
+    card.style.boxShadow=`0 30px 80px rgba(0,247,255,0.2)`;
+  });
+  wrap.addEventListener('mouseleave',()=>{
+    card.style.transform='rotateX(0) rotateY(0) scale(1)';
+    card.style.boxShadow='';
+  });
+});
+
+/* ─── 3D TILT: CONTACT CARD ─── */
+const cc=document.getElementById('contact-card');
+if(cc){
+  const ps=cc.parentElement;
+  ps.addEventListener('mousemove',e=>{
+    const r=cc.getBoundingClientRect();
+    const x=e.clientX-r.left,y=e.clientY-r.top;
+    const cx=r.width/2,cy=r.height/2;
+    const rx=((y-cy)/cy)*-8;
+    const ry=((x-cx)/cx)*8;
+    cc.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`;
+  });
+  ps.addEventListener('mouseleave',()=>{cc.style.transform='';});
+}
+
+/* ─── SERVICE CARDS 3D TILT ─── */
+document.querySelectorAll('.svc').forEach(s=>{
+  s.addEventListener('mousemove',e=>{
+    const r=s.getBoundingClientRect();
+    const x=e.clientX-r.left,y=e.clientY-r.top;
+    const cx=r.width/2,cy=r.height/2;
+    const rx=((y-cy)/cy)*-8;
+    const ry=((x-cx)/cx)*8;
+    s.style.transform=`translateY(-8px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+  });
+  s.addEventListener('mouseleave',()=>{s.style.transform='';});
+});
+
+/* ─── SCROLL REVEAL ─── */
+const revEls=document.querySelectorAll('.reveal');
+const revObs=new IntersectionObserver((entries)=>{
+  entries.forEach((e,i)=>{if(e.isIntersecting)setTimeout(()=>e.target.classList.add('on'),i*70);});
+},{threshold:.08});
+revEls.forEach(el=>revObs.observe(el));
+</script>
+</body>
+</html>
